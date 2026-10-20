@@ -16,7 +16,7 @@
     {
       "binding": "DB",
       "database_name": "personal-website-db",
-      "database_id": "PLACEHOLDER_DATABASE_ID",
+      "database_id": "8a9c7492-ad22-4fbb-8e3d-73bf9c615ac4",
       "migrations_dir": "drizzle"
     }
   ]
