@@ -1,0 +1,53 @@
+-- D1 初始 schema（与 src/db/schema.ts 保持一致）
+-- 主键统一使用 TEXT（UUID 字符串），字段仅用 TEXT / INTEGER。
+
+CREATE TABLE IF NOT EXISTS profile (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL DEFAULT '',
+  bio TEXT NOT NULL DEFAULT '',
+  avatar_url TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  website TEXT NOT NULL DEFAULT '',
+  resume_url TEXT NOT NULL DEFAULT '',
+  updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  level INTEGER NOT NULL DEFAULT 80,
+  category TEXT NOT NULL DEFAULT '',
+  icon TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  link TEXT NOT NULL DEFAULT '',
+  image_url TEXT NOT NULL DEFAULT '',
+  tags TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS social_links (
+  id TEXT PRIMARY KEY,
+  platform TEXT NOT NULL,
+  url TEXT NOT NULL,
+  icon TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS experiences (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL DEFAULT 'work',
+  organization TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT '',
+  period TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0
+);

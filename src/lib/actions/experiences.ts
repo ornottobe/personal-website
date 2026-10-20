@@ -1,14 +1,14 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { experiences } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-server";
 import { revalidateSite } from "./shared";
 
 export async function addExperience(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const organization = String(formData.get("organization") ?? "").trim();
   if (!organization) return;
 
@@ -24,13 +24,14 @@ export async function addExperience(formData: FormData) {
 
   await db
     .insert(experiences)
-    .values({ id: randomUUID(), type, organization, role, period, description, sortOrder });
+    .values({ id: crypto.randomUUID(), type, organization, role, period, description, sortOrder });
 
   revalidateSite();
 }
 
 export async function updateExperience(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -50,6 +51,7 @@ export async function updateExperience(formData: FormData) {
 
 export async function deleteExperience(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await db.delete(experiences).where(eq(experiences.id, id));

@@ -1,32 +1,24 @@
-import { mkdirSync } from "node:fs";
-import path from "node:path";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import * as schema from "./schema";
 
 /**
- * 本地开发使用 SQLite（better-sqlite3）。
- * 部署到 Vercel + Neon 时，此文件会切换为 PostgreSQL 客户端，
- * schema 定义（src/db/schema.ts）中的 text/integer 类型保持不变。
+ * Cloudflare 部署使用 D1（Cloudflare 原生 SQLite 数据库）。
+ * - 生产环境：通过 wrangler.jsonc 中的 D1 绑定访问真实数据库。
+ * - 本地开发（next dev）：由 next.config.ts 中的 initOpenNextCloudflareForDev
+ *   提供 D1 的本地模拟（miniflare）。
+ *
+ * D1 是无状态的 HTTP 绑定，drizzle 实例是轻量查询构建器，
+ * 因此在每次请求/调用中通过 getDb() 获取是安全且推荐的做法。
  */
 
-const DB_PATH = process.env.DATABASE_URL ?? path.join(process.cwd(), "data", "sqlite.db");
-
-// 确保数据目录存在（SQLite 需要目录已存在才能创建文件）
-if (!DB_PATH.startsWith("postgres")) {
-  mkdirSync(path.dirname(DB_PATH), { recursive: true });
+declare global {
+  interface CloudflareEnv {
+    DB: D1Database;
+  }
 }
 
-// 开发模式下热重载会重复 import，用 globalThis 缓存连接，避免重复打开数据库
-const globalForDb = globalThis as unknown as {
-  sqlite?: Database.Database;
-};
-
-const sqlite = globalForDb.sqlite ?? new Database(DB_PATH);
-sqlite.pragma("journal_mode = WAL");
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.sqlite = sqlite;
+export function getDb() {
+  const { env } = getCloudflareContext();
+  return drizzle(env.DB, { schema });
 }
-
-export const db = drizzle(sqlite, { schema });

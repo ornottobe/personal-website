@@ -1,14 +1,14 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { projects } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-server";
 import { revalidateSite } from "./shared";
 
 export async function addProject(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const title = String(formData.get("title") ?? "").trim();
   if (!title) return;
 
@@ -24,13 +24,14 @@ export async function addProject(formData: FormData) {
 
   await db
     .insert(projects)
-    .values({ id: randomUUID(), title, description, link, imageUrl, tags, sortOrder });
+    .values({ id: crypto.randomUUID(), title, description, link, imageUrl, tags, sortOrder });
 
   revalidateSite();
 }
 
 export async function updateProject(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -50,6 +51,7 @@ export async function updateProject(formData: FormData) {
 
 export async function deleteProject(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await db.delete(projects).where(eq(projects.id, id));

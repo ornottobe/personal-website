@@ -1,13 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { profile } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-server";
 
 /** 更新个人信息（单行，id 固定为 "main"） */
 export async function updateProfile(formData: FormData) {
   await requireAdmin();
+  const db = getDb();
 
   const data = {
     name: String(formData.get("name") ?? ""),

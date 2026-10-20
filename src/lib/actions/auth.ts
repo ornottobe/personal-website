@@ -19,7 +19,7 @@ export async function login(
   }
 
   const store = await cookies();
-  store.set("session", createSessionToken(), {
+  store.set("session", await createSessionToken(), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
